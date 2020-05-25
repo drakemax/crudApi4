@@ -9,7 +9,13 @@ based on this video tutorial:
 https://www.youtube.com/playlist?list=PLJetLDY7yKupm5WTx02ylh1I25rJLPvXe
 
 
-I need to reconfigure collection items in database in a new table. 
+**You need to be in the functions directory to run **
+**>npm run serve**
+
+_Once that is up and running you can use postman._
+
+
+~~I need to reconfigure collection items in database in a new table.~~ 
 Then I need an interface for a mobile app 
 Then hopefully a static site with cloud functions taking/bringing data from the database. 
 Ineed to deploy functions
