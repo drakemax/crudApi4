@@ -2,21 +2,6 @@ const runtimeOpts = {
   timeoutSeconds: 120,
 };
 
-/* THIS DIDN'T SEEM TO DO ANYTHING> STILL NO CONNECT
-const firebase = require("firebase");
-
-var firebaseConfig = {
-  apiKey: "AIzaSyClZ3ovPUJrGmRD5lwI2GvkPqR-3wGxKlE",
-  authDomain: "crudapi3.firebaseapp.com",
-  databaseURL: "https://crudapi3.firebaseio.com",
-  projectId: "crudapi3",
-  storageBucket: "crudapi3.appspot.com",
-  messagingSenderId: "369166344068",
-  appId: "1:369166344068:web:d995bb41e09c46b32987d1",
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig); */
-
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
@@ -27,7 +12,6 @@ admin.initializeApp({
   databaseURL: "https://crudapi3.firebaseio.com",
 });
 const db = admin.firestore();
-console.log(db);
 
 const express = require("express");
 const app = express();
@@ -45,12 +29,16 @@ app.post("/api/create", (req, resp) => {
   (async () => {
     try {
       await db
-        .collection("product")
+        .collection("expenses")
         .doc("/" + req.body.id + "/")
         .create({
-          name: req.body.name,
-          description: req.body.description,
-          price: req.body.price,
+          sum: req.body.sum,
+          payee: req.body.payee,
+          category: req.body.category,
+          account: req.body.account,
+          billable: req.body.billable,
+          comment: req.body.comment,
+          date: req.body.date,
         });
       return resp.status(200).send(req.body.id + " added to db");
     } catch (error) {
@@ -65,9 +53,9 @@ app.post("/api/create", (req, resp) => {
 app.get("/api/read/:id", (req, resp) => {
   (async () => {
     try {
-      const document = db.collection("product").doc(req.params.id);
-      let product = await document.get();
-      let response = product.data();
+      const document = db.collection("expenses").doc(req.params.id);
+      let expense = await document.get();
+      let response = expense.data();
       return resp.status(200).send(response);
     } catch (error) {
       console.log(error);
@@ -81,17 +69,23 @@ app.get("/api/read/:id", (req, resp) => {
 app.get("/api/read", (req, resp) => {
   (async () => {
     try {
-      let query = db.collection("product");
+      let query = db.collection("expenses");
       let response = [];
 
+
       await query.get().then((querySnapshot) => {
+
         let docs = querySnapshot.docs; // the result of the query
         for (let doc of docs) {
           const selectedItem = {
             id: doc.id,
-            name: doc.data().name,
-            description: doc.data().description,
-            price: doc.data().price,
+            sum: doc.data().sum,
+            payee: doc.data().payee,
+            category: doc.data().category,
+            account: doc.data().account,
+            billable: doc.data().billable,
+            comment: doc.data().comment,
+            date: doc.data().date
           };
           response.push(selectedItem);
         }
@@ -100,9 +94,8 @@ app.get("/api/read", (req, resp) => {
       return resp.status(200).send(response);
     } catch (error) {
       console.log(error);
-      return resp.status(500).send(error);
+      return resp.status(500).send(error + " broken");
     }
-    return console.log("blah");
   })();
 });
 
@@ -111,13 +104,18 @@ app.get("/api/read", (req, resp) => {
 app.put("/api/update/:id", (req, resp) => {
   (async () => {
     try {
-      const document = db.collection("product").doc(req.params.id);
+      const document = db.collection("expenses").doc(req.params.id);
+      const idInfo = req.params.id;
       await document.update({
-        name: req.body.name,
-        description: req.body.description,
-        price: req.body.price,
+        sum: req.body.sum,
+        payee: req.body.payee,
+        category: req.body.category,
+        account: req.body.account,
+        billable: req.body.billable,
+        comment: req.body.comment,
+        date: req.body.date,
       });
-      return resp.status(200).send(req.body.id + "altered in db"); //req.body.id + "altered in db"
+      return resp.status(200).send(idInfo + " altered in db"); //req.body.id + "altered in db"
     } catch (error) {
       console.log(error);
       console.log("this request did not work");
@@ -131,7 +129,7 @@ app.put("/api/delete/:id", (req, resp) => {
   (async () => {
     try {
       const toDeleteId = req.params.id;
-      const document = db.collection("product").doc(req.params.id);
+      const document = db.collection("expenses").doc(req.params.id);
       await document.delete();
 
       return resp.status(200).send(toDeleteId + " deleted in db");
